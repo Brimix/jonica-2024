@@ -6,7 +6,7 @@ from library import library_adjust, library_filter, library_segment, library_toG
 
 def process_frame(label, blur_intensity):
     frame = camera_capture_array()
-    f = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2BGR)
+    f = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2BGR)    #en este caso habria que ver porque dijimos de capaz trabajar en HSV no en RGB
     f_gray = library_toGray(f)
     f_just = library_adjust(f_gray)
     f_blur = library_filter(f_just, blur_intensity)
