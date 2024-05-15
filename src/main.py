@@ -1,96 +1,73 @@
 import cv2
 import numpy as np
 import time
-from camera import camera_init, camera_stop, camera_capture_array
-from filter import filter_adjust, filter_blur, filter_segment, filter_toGray, filter_expand, filter_toSaturated
-from servo_gpio import servo_init, servo_setAngle, servo_stop
+import camera
+import keyboard
+import filter
+import parameters as param
+import analyze
 
-# Initial constants
-camDebug = False            # If true, displays camera preview
-requiredSpan = 0.05         # 0.05 seconds between shots
+def split_hsv(img):
+    # Split into individual channels
+    hue, saturation, value = cv2.split(img)
 
-# Tweak constants
-blurIntensity = 2.5
-cannyThreshold1 = 0.0001*255
-cannyThreshold2 = 0.19*255
-angle = 0
-keepRunning = True
-
-def applyKey(key):
-    global keepRunning, blurIntensity, cannyThreshold1, cannyThreshold2, angle
-    if key & 0xFF == ord('q'):
-        keepRunning = False
-    elif key & 0xFF == ord('w'):
-        blurIntensity += 0.5
-    elif key & 0xFF == ord('s'):
-        if blurIntensity > 0.5:
-            blurIntensity -= 0.5
-    elif key & 0xFF == ord('e'):
-        cannyThreshold1 += 0.0001 * 255
-    elif key & 0xFF == ord('d'):
-        if cannyThreshold1 > 0.0001 * 255:
-            cannyThreshold1 -= 0.0001 * 255
-    elif key & 0xFF == ord('r'):
-        cannyThreshold2 += 0.01 * 255
-    elif key & 0xFF == ord('f'):
-        if cannyThreshold2 > 0.01 * 255:
-            cannyThreshold2 -= 0.01 * 255
-    elif key & 0xFF == ord('p'):
-        angle += 1
-    elif key & 0xFF == ord('o'):
-        if angle > 1:
-            angle -= 1
+    # Display each channel
+    cv2.imshow("Hue Channel", hue)
+    cv2.imshow("Saturation Channel", saturation)
+    cv2.imshow("Value Channel", value)
 
 def process_frame():
-    # global 
+    frame = camera.capture()
 
-    frame = camera_capture_array()
-    f = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2BGR)    #en este caso habria que ver porque dijimos de capaz trabajar en HSV no en RGB
-    f_gray = library_toGray(f)
-    f_just = filter_adjust(f_gray)
-    f_blur = filter_blur(f_just, blurIntensity)
-    f_can = filter_segment(f_blur, cannyThreshold1, cannyThreshold2)
-    f_exp = filter_expand(f_can)
+    # En este caso dijimos de trabajar en HSV
+    f = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2HSV)
 
-    f_color = filter_toSaturated(frame)
+    # split_hsv(f)
 
-    # Here goes the plot
-    # cv2.imshow("Gray", f_gray)
-    # cv2.imshow("Adjusted", f_just)
+    f_adjust = filter.hsv_adjust(f)
+    f_blur = filter.blur(f_adjust)
+    f_can = filter.segment(f_blur)
+    f_exp = filter.expand(f_can)
+    f_closed = filter.close_shape(f_exp)
+    f_full = filter.fill_holes(f_closed)
+    f_eros = filter.erode(f_full)
+
+    # cv2.imshow("Color", f)
+    # cv2.imshow("Adjusted", f_adjust)
     # cv2.imshow("Blurred", f_blur)
     # cv2.imshow("Uncanny", f_can)
-    cv2.imshow("Expanded", f_exp)
-    cv2.imshow("Color", f_color)
+    # cv2.imshow("Expanded", f_exp)
+    # cv2.imshow("Closed", f_closed)
+    # cv2.imshow("Full", f_full)
+    # cv2.imshow("Eroted", f_eros)
 
-    key = cv2.waitKey(1)
-    applyKey(key)
+    analyze.execute(f_eros, f)
+    cv2.waitKey(0)
 
 def main():
-    camera_init(camDebug)
-    servo_init()
+    camera.init(param.cam_debug)
+    keyboard.init()
 
     last_time = time.time()
-    servo_setAngle(angle)
-
     try:
         while True:
+            key = keyboard.getKey()
+            param.tweak_by_key(key)
+
             current_time = time.time()
-            span_time = current_time - last_time
-            if span_time >= requiredSpan:
+            timespan = current_time - last_time
+            if timespan >= param.frame_timespan:
                 process_frame()
-                print('blur:', blurIntensity)
-                print('ct1:', cannyThreshold1)
-                print('ct2:', cannyThreshold2)
-                print('angle:', angle)
-                servo_setAngle(angle)
-                if not keepRunning:
-                    break
+                # param.show()
                 last_time = current_time
+
+            if not param.keep_running:
+                break
     except KeyboardInterrupt:
         pass
     finally:
-        camera_stop()
-        servo_stop()
+        camera.stop()
+        keyboard.stop()
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
