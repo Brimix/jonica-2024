@@ -1,13 +1,13 @@
 # Execution parameters
 keep_running                = True
-cam_debug                   = True  # If true, displays camera preview
-frame_timespan              = 5     # Seconds between shots
+cam_debug                   = False  # If true, displays camera preview
+frame_timespan              = 2     # Seconds between shots
 
 # Servo parameters
-angle_min                   = 1
+angle_min                   = 0
 angle_max                   = 180
-angle                       = angle_min
-angle_resolution            = 5
+angle                       = 0
+angle_resolution            = 45
 
 # Filters' parameters (can be tweaked)
 blur_intensity              = 6.1
@@ -19,7 +19,7 @@ canny_ths_L_resolution      = 0.01*255
 canny_ths_H                 = 0.45*255
 canny_ths_H_resolution      = 0.01*255
 
-expansion_size              = 6
+expansion_size              = 5
 expansion_size_resolution   = 1
 expansion_size_max          = 100
 
@@ -27,8 +27,8 @@ erosion_size                = 19
 erosion_size_resolution     = 2
 erosion_size_max            = 100
 
-saturation_ths              = 49
-value_ths                   = 75
+saturation_ths              = 55
+value_ths                   = 81
 sat_val_resolution          = 2
 
 
@@ -81,9 +81,9 @@ def tweak_by_key(key):
     if key == 'k' and erosion_size - erosion_size_resolution > 0:
         erosion_size -= erosion_size_resolution
 
-    if key == 'p' and angle + angle_resolution < angle_max:
+    if key == 'p' and angle + angle_resolution <= angle_max:
         angle += angle_resolution
-    if key == 'o' and angle - angle_resolution > angle_min:
+    if key == 'o' and angle - angle_resolution >= angle_min:
         angle -= angle_resolution
 
 def show():

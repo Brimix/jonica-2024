@@ -6,6 +6,7 @@ import keyboard
 import filter
 import parameters as param
 import analyze
+import servo_pigpio as servo
 
 def split_hsv(img):
     # Split into individual channels
@@ -20,6 +21,7 @@ def process_frame():
     frame = camera.capture()
 
     # En este caso dijimos de trabajar en HSV
+    f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
     f = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2HSV)
 
     # split_hsv(f)
@@ -32,7 +34,7 @@ def process_frame():
     f_full = filter.fill_holes(f_closed)
     f_eros = filter.erode(f_full)
 
-    # cv2.imshow("Color", f)
+    # cv2.imshow("Color", f_color)
     # cv2.imshow("Adjusted", f_adjust)
     # cv2.imshow("Blurred", f_blur)
     # cv2.imshow("Uncanny", f_can)
@@ -42,17 +44,19 @@ def process_frame():
     # cv2.imshow("Eroted", f_eros)
 
     analyze.execute(f_eros, f)
-    cv2.waitKey(0)
+    cv2.waitKey(1)
 
 def main():
     camera.init(param.cam_debug)
     keyboard.init()
+    servo.init()
 
     last_time = time.time()
     try:
         while True:
             key = keyboard.getKey()
             param.tweak_by_key(key)
+            servo.set_angle(param.angle)
 
             current_time = time.time()
             timespan = current_time - last_time
@@ -68,6 +72,7 @@ def main():
     finally:
         camera.stop()
         keyboard.stop()
+        servo.stop()
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
