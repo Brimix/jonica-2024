@@ -1,57 +1,78 @@
 import cv2
 import numpy as np
 import time
-from camera import camera_init, camera_stop, camera_capture_array
-from library import library_adjust, library_filter, library_segment, library_toGray
+import camera
+import keyboard
+import filter
+import parameters as param
+import analyze
+import servo_pigpio as servo
 
-def process_frame(label, blur_intensity):
-    frame = camera_capture_array()
-    f = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2BGR)    #en este caso habria que ver porque dijimos de capaz trabajar en HSV no en RGB
-    f_gray = library_toGray(f)
-    f_just = library_adjust(f_gray)
-    f_blur = library_filter(f_just, blur_intensity)
-    f_can = library_segment(f_blur)
+def split_hsv(img):
+    # Split into individual channels
+    hue, saturation, value = cv2.split(img)
 
-    # Here goes the plot
-    # cv2.imshow("Gray", f_gray)
-    # cv2.imshow("Adjusted", f_just)
-    cv2.imshow("Blurred", f_blur)
-    cv2.imshow("Uncanny", f_can)
+    # Display each channel
+    cv2.imshow("Hue Channel", hue)
+    cv2.imshow("Saturation Channel", saturation)
+    cv2.imshow("Value Channel", value)
 
-    key = cv2.waitKey(1)
-    if key & 0xFF == ord('q'):
-        return False, blur_intensity
-    elif key & 0xFF == ord('w'):  # Up arrow key
-        blur_intensity += 0.1
-    elif key & 0xFF == ord('s'):  # Down arrow key
-        blur_intensity -= 0.1
-    return True, blur_intensity
+def process_frame():
+    frame = camera.capture()
+
+    # En este caso dijimos de trabajar en HSV
+    f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
+    f = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2HSV)
+
+    # split_hsv(f)
+
+    f_adjust = filter.hsv_adjust(f)
+    f_blur = filter.blur(f_adjust)
+    f_can = filter.segment(f_blur)
+    f_exp = filter.expand(f_can)
+    f_closed = filter.close_shape(f_exp)
+    f_full = filter.fill_holes(f_closed)
+    f_eros = filter.erode(f_full)
+
+    # cv2.imshow("Color", f_color)
+    # cv2.imshow("Adjusted", f_adjust)
+    # cv2.imshow("Blurred", f_blur)
+    # cv2.imshow("Uncanny", f_can)
+    # cv2.imshow("Expanded", f_exp)
+    # cv2.imshow("Closed", f_closed)
+    # cv2.imshow("Full", f_full)
+    # cv2.imshow("Eroted", f_eros)
+
+    analyze.execute(f_eros, f)
+    cv2.waitKey(1)
 
 def main():
-    cam_debug = False
-    camera_init(cam_debug)
+    camera.init(param.cam_debug)
+    keyboard.init()
+    servo.init()
 
     last_time = time.time()
-    required_span = 0.1
-    it_number = 0
-    blur_intensity = 2.5
-
     try:
         while True:
+            key = keyboard.getKey()
+            param.tweak_by_key(key)
+            servo.set_angle(param.angle)
+
             current_time = time.time()
-            span_time = current_time - last_time
-            if span_time >= required_span:
-                # print('Process..')
-                result, blur_intensity = process_frame(it_number, blur_intensity)
-                print(blur_intensity)
-                if not result:
-                    break  # Exit the loop if process_frame returns False
-                it_number = it_number + 1
+            timespan = current_time - last_time
+            if timespan >= param.frame_timespan:
+                process_frame()
+                # param.show()
                 last_time = current_time
+
+            if not param.keep_running:
+                break
     except KeyboardInterrupt:
         pass
     finally:
-        camera_stop()
+        camera.stop()
+        keyboard.stop()
+        servo.stop()
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
