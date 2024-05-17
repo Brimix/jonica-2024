@@ -8,31 +8,37 @@ Project Jonica is a computer vision application developed for the Jonica competi
 To set up this project locally, follow these steps:
 
 ### Prerequisites
+- RaspberryOS
 - Python 3.x
-- pip
 
 ### Setup
 1. Clone the repository:
    ```bash
    git clone [URL]
-   cd project_jonica
+   cd jonica-2024
 
 2. Install the required packages:
    ```bash
-   pip install -r requirements.txt
+   sudo apt update
+   sudo apt install python3-opencv
+   sudo apt install python3-numpy
+   sudo apt install python3-picamera2
+   sudo apt install python3-termios
+   sudo apt install python3-RPi.GPIO
+   sudo apt install python3-pigpio
    ```
 
 ### Usage
 To run the application, execute the following command in the root directory of the project:
 
 ```bash
-python main.py
+python src/main.py
 ```
 
 ### Features
 - Real-time image processing
 - Advanced object detection algorithms
-- User-friendly graphical interface (if applicable)
+- User-friendly graphical interface
 
 ### License
 This project is licensed under the GNU License - see the LICENSE file for details.
