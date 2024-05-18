@@ -8,20 +8,16 @@ import parameters as param
 import analyze
 import servo_pigpio as servo
 
-def split_hsv(img):
-    # Split into individual channels
-    hue, saturation, value = cv2.split(img)
-
-    # Display each channel
-    cv2.imshow("Hue Channel", hue)
-    cv2.imshow("Saturation Channel", saturation)
-    cv2.imshow("Value Channel", value)
+def kick():
+    servo.set_angle(135)
+    time.sleep(0.4)       
+    servo.set_angle(45)
 
 def process_frame():
     frame = camera.capture()
 
     # En este caso dijimos de trabajar en HSV
-    f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
+    f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB) #SIRVE ESTO?
     f = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2HSV)
 
     # split_hsv(f)
@@ -64,6 +60,8 @@ def main():
                 process_frame()
                 # param.show()
                 last_time = current_time
+                if (analyze.current_color == 'red' and analyze.current_shape == 'circle'):
+                    kick()
 
             if not param.keep_running:
                 break

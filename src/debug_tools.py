@@ -17,3 +17,12 @@ def count_ranges(values, step=20):
         range_str = f"[{i}, {i + step})"
         # Print the count for the range, defaulting to 0 if not in the dictionary
         print(f"{range_str}: {range_counts.get(i, 0)}")
+
+def split_hsv(img):
+    # Split into individual channels
+    hue, saturation, value = cv2.split(img)
+
+    # Display each channel
+    cv2.imshow("Hue Channel", hue)
+    cv2.imshow("Saturation Channel", saturation)
+    cv2.imshow("Value Channel", value)

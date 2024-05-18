@@ -5,11 +5,12 @@ import time
 pi = None
 current_angle = 6
 
+GPIO_PIN = 13
+
 # Initialize the pigpio library
 def init():
-    global pi
+    global pi, GPIO_PIN
 
-    GPIO_PIN = 13
     PWM_FREQUENCY = 50
     pi = pigpio.pi()
 
@@ -22,13 +23,13 @@ def init():
     pi.set_PWM_frequency(GPIO_PIN, PWM_FREQUENCY)
 
 def set_angle(angle):
-    global current_angle
+    global current_angle, GPIO_PIN
 
     if (current_angle != angle):
         current_angle = angle
 
         duty_cycle = angle / 180 * 26 + 6
-        print(f"Setting duty cycle: {duty_cycle}")
+        # print(f"Setting duty cycle: {duty_cycle}")
         pi.set_PWM_dutycycle(GPIO_PIN, duty_cycle)
 
 def stop():

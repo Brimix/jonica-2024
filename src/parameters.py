@@ -1,12 +1,12 @@
 # Execution parameters
 keep_running                = True
 cam_debug                   = False  # If true, displays camera preview
-frame_timespan              = 2     # Seconds between shots
+frame_timespan              = 5     # Seconds between shots
 
 # Servo parameters
 angle_min                   = 0
 angle_max                   = 180
-angle                       = 0
+angle                       = 45
 angle_resolution            = 45
 
 # Filters' parameters (can be tweaked)
