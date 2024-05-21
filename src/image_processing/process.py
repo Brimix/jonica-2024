@@ -16,8 +16,6 @@ def get_filtered_frame():
     # En este caso dijimos de trabajar en HSV
     f = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2HSV)
 
-    # split_hsv(f)
-
     f_adjust = filter.hsv_adjust(f)
     f_blur = filter.blur(f_adjust)
     f_can = filter.segment(f_blur)
@@ -28,8 +26,9 @@ def get_filtered_frame():
 
 
     # For debugging only
-    f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
-    dbg.set_steps([f_color, f_adjust, f_blur, f_can, f_exp, f_closed, f_full, f_eros])
+    # dbg.split_hsv(f)
+    # f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
+    # dbg.set_steps([f_color, f_adjust, f_blur, f_can, f_exp, f_closed, f_full, f_eros])
 
     return [f_eros, f]
 
