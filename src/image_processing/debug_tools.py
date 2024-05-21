@@ -1,4 +1,8 @@
+import cv2
+import numpy as np
 from collections import Counter
+
+blank_image = np.zeros((480, 640), dtype=np.uint8)
 
 def count_ranges(values, step=20):
     """
@@ -26,3 +30,33 @@ def split_hsv(img):
     cv2.imshow("Hue Channel", hue)
     cv2.imshow("Saturation Channel", saturation)
     cv2.imshow("Value Channel", value)
+
+current_step_id = 0
+steps = [blank_image]
+pressed_key = None
+
+def display_steps():
+    global current_step_id, steps, pressed_key
+    cv2.imshow('Image', steps[current_step_id])
+    pressed_key = cv2.waitKey(1) & 0xFF
+
+def set_steps(new_steps):
+    global steps
+    steps = new_steps
+    display_steps()
+
+def next_step():
+    global current_step_id, steps
+    current_step_id = (current_step_id + 1) % len(steps)
+
+def prev_step():
+    global current_step_id, steps
+    current_step_id = (current_step_id - 1) % len(steps)
+
+def switch_step():
+    global pressed_key
+    if (pressed_key == 83):
+        next_step()
+    elif (pressed_key == 81):
+        prev_step()
+    display_steps()

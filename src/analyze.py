@@ -63,8 +63,9 @@ def get_shape(component_mask, stats, label):
 
     # Ratio is around 4.pi for circles and 16 for squares (and other shapes)
     ratio = perimeter / circle_perimeter
+    print(f"  Ratio: ({ratio})")
 
-    if (ratio < 1.12):
+    if (ratio < 1.1):
         return 'circle'
     else:
         return 'square'

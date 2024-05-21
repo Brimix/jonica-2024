@@ -23,7 +23,6 @@ To set up this project locally, follow these steps:
    sudo apt install python3-opencv
    sudo apt install python3-numpy
    sudo apt install python3-picamera2
-   sudo apt install python3-termios
    sudo apt install python3-RPi.GPIO
    sudo apt install python3-pigpio
    ```
@@ -32,6 +31,7 @@ To set up this project locally, follow these steps:
 To run the application, execute the following command in the root directory of the project:
 
 ```bash
+sudo pigpiod
 python src/main.py
 ```
 
