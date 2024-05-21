@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 
+current_color = 'unknown'
+current_shape = 'unknown'
+
 def mean_hue_value(hues):
     """
     Calculate the mean hue value from a list of hue by converting each hue to an angle in the
@@ -60,8 +63,9 @@ def get_shape(component_mask, stats, label):
 
     # Ratio is around 4.pi for circles and 16 for squares (and other shapes)
     ratio = perimeter / circle_perimeter
+    print(f"  Ratio: ({ratio})")
 
-    if (ratio < 1.12):
+    if (ratio < 1.1):
         return 'circle'
     else:
         return 'square'
@@ -70,6 +74,8 @@ def get_shape(component_mask, stats, label):
 # Assume hsv_image is your HSV image and binary_image is your binary image
 # both obtained from the same photo and already loaded as numpy arrays
 def execute(binary_image, hsv_image):
+    global current_color, current_shape
+
     # Step 1: Find connected components in the binary image
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(binary_image, connectivity=8, ltype=cv2.CV_32S)
 
@@ -86,3 +92,6 @@ def execute(binary_image, hsv_image):
         print(f"Component {label} - {centroids[label]}:")
         # print(f"  Color: {color} ({mean_hue}) - Tag: {tag} ({ratio})")
         print(f"  Color: {color} - Shape: {shape}")
+
+        current_color = color
+        current_shape = shape

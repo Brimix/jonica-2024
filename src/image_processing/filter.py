@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import parameters as param
+import image_processing.filter_parameters as param
 
 def to_gray(img):
     return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
