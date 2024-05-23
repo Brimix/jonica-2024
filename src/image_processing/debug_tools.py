@@ -55,8 +55,8 @@ def prev_step():
 
 def switch_step():
     global pressed_key
-    if (pressed_key == 83):
+    if (pressed_key == 57):
         next_step()
-    elif (pressed_key == 81):
+    elif (pressed_key == 56):
         prev_step()
     display_steps()

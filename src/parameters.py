@@ -1,6 +1,6 @@
 # Execution parameters
 keep_running                = True
-frame_timespan              = 5     # Seconds between shots
+frame_timespan              = 6     # Seconds between shots
 
 # Servo parameters
 angle_min                   = 0
@@ -12,7 +12,7 @@ def tweak_by_key(key):
     global keep_running
     global angle, angle_min, angle_max, angle_resolution
 
-    if key == 'p':
+    if key == 'q':
         keep_running = False
     if key == 'p' and angle + angle_resolution <= angle_max:
         angle += angle_resolution

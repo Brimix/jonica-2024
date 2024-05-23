@@ -3,7 +3,7 @@ import pigpio
 import time
 
 pi = None
-current_angle = 6
+current_angle = 0
 
 GPIO_PIN = 13
 
@@ -31,6 +31,18 @@ def set_angle(angle):
         duty_cycle = angle / 180 * 26 + 6
         # print(f"Setting duty cycle: {duty_cycle}")
         pi.set_PWM_dutycycle(GPIO_PIN, duty_cycle)
+
+def sweep(angle_start, angle_end, duration):
+    step_time = 0.02
+    steps = int(duration / step_time)
+    duty_step = (angle_end - angle_start) / steps
+    
+    for i in range(steps):
+        angle = angle_start + i * duty_step
+        set_angle(angle)
+        time.sleep(step_time)
+    
+    set_angle(angle_end) 
 
 def stop():
     pi.stop()
