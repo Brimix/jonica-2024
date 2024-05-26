@@ -3,6 +3,7 @@ from transitions import Machine
 import time
 import threading
 import keyboard
+import computer_vision.functions as cvf
 
 from actuators.units import train, trapdoor, motor
 
@@ -79,8 +80,6 @@ def main():
     # Mock values
     should_start = True
     is_object = False
-    object_color = 'Red'
-    object_shape = 'Circle'
 
     try:
         while True:
@@ -90,16 +89,6 @@ def main():
                 should_start = True
             if (key == 'w'):
                 is_object = not is_object
-            if (key == 'c'):
-                if (object_color == 'Red'):
-                    object_color = 'Green'
-                else:
-                    object_color = 'Red'
-            if (key == 'x'):
-                if (object_shape == 'Circle'):
-                    object_shape = 'Square'
-                else:
-                    object_shape = 'Circle'
 
             if (last_state != model.state):
                 print('Entered state ', model.state)
@@ -127,15 +116,18 @@ def main():
                     model.object_not_detected()
             elif model.state == States.ANALYZE_OBJECT.value:
                 motor.stop_motor()
-                # - Use camera to obtain object values
-                time.sleep(1)
-                if (object_shape == 'Square'):
-                    model.handle_cube()
-                else:
-                    if (object_color == 'Red'):
-                        model.handle_ball_red()
+                
+                obj = cvf.get_mode_object()
+                if (obj is not None):
+                    color, shape = obj
+
+                    if (shape == 'square'):
+                        model.handle_cube()
                     else:
-                        model.handle_ball_green()
+                        if (color == 'red'):
+                            model.handle_ball_red()
+                        else:
+                            model.handle_ball_green()
 
             elif model.state == States.SELECT_RED_BALL.value:
                 train.set_position_zero()

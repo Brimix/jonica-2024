@@ -1,9 +1,6 @@
 import cv2
 import numpy as np
 
-current_color = 'unknown'
-current_shape = 'unknown'
-
 def mean_hue_value(hues):
     """
     Calculate the mean hue value from a list of hue by converting each hue to an angle in the
@@ -29,7 +26,7 @@ def mean_hue_value(hues):
     # Convert back to hue amd return
     return mean_angle_degrees / 2
 
-def get_color(hsv_image, component_mask):
+def get_component_color(hsv_image, component_mask):
     # These are the  central points of each color
     centers = [0, 15, 30, 60, 90, 120, 150, 180]
     colors = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'magenta', 'red']
@@ -50,48 +47,67 @@ def get_color(hsv_image, component_mask):
 
     return color
 
-def get_shape(component_mask, stats, label):
+def get_component_shape(component_mask):
     # Find contours for the component to calculate the perimeter
     contours, hierarchy = cv2.findContours(component_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     perimeter = cv2.arcLength(contours[0], True)
-
-    # Area is already available from the stats array
-    area = stats[label, cv2.CC_STAT_AREA]
+    area = cv2.contourArea(contours[0])
 
     # Perimeter of a circle calculated from area
     circle_perimeter = np.sqrt(4 * np.pi * area)
 
     # Ratio is around 4.pi for circles and 16 for squares (and other shapes)
     ratio = perimeter / circle_perimeter
-    print(f"  Ratio: ({ratio})")
+    # print(f"  Ratio: ({ratio})")
 
     if (ratio < 1.1):
         return 'circle'
     else:
         return 'square'
 
+def find_largest_component_under_threshold(binary_image):
+    """
+    Identifies connected components in the binary image, calculates the area for each,
+    and returns the mask of the biggest object as long as its area does not exceed the defined threshold.
 
-# Assume hsv_image is your HSV image and binary_image is your binary image
-# both obtained from the same photo and already loaded as numpy arrays
-def execute(binary_image, hsv_image):
-    global current_color, current_shape
+    :param binary_image: Binary image where objects are identified as foreground (255) against the background (0).
+    :return: Mask of the largest object under the threshold or None if no such object exists.
+    """
 
-    # Step 1: Find connected components in the binary image
+    MIN_AREA_THRESHOLD = 5000
+    MAX_AREA_THRESHOLD = 40000
+
+    # Step 1: Find connected components with statistics in the binary image
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(binary_image, connectivity=8, ltype=cv2.CV_32S)
+    
+    # Step 2: Initialize variables to find the largest component under the threshold
+    max_area = MIN_AREA_THRESHOLD
+    largest_component_mask = None
 
-    print("------------------------")
+    # Step 3: Iterate through the components to find the largest under threshold
+    for label in range(1, num_labels):  # Skip label 0 as it's the background
+        area = stats[label, cv2.CC_STAT_AREA]
 
-    # Step 2: Iterate through the components to calculate additional statistics
-    for label in range(1, num_labels):  # Start from 1 to skip the background
-        # Create a mask for the current component
-        component_mask = (labels == label).astype(np.uint8) * 255
+        if (area > MAX_AREA_THRESHOLD):
+            return None
+        
+        if area > max_area:
+            max_area = area
+            # Create a mask for the current largest component
+            largest_component_mask = (labels == label).astype(np.uint8) * 255
 
-        color = get_color(hsv_image, component_mask)
-        shape = get_shape(component_mask, stats, label)
+    # Return the mask of the largest component if found
+    # print('Area', max_area)
+    return largest_component_mask
 
-        print(f"Component {label} - {centroids[label]}:")
-        # print(f"  Color: {color} ({mean_hue}) - Tag: {tag} ({ratio})")
-        print(f"  Color: {color} - Shape: {shape}")
+def get_component_color_and_shape(component_mask, hsv_image):
+    """
+    Calculate color and shape for the provided component mask.
 
-        current_color = color
-        current_shape = shape
+    :param component_mask: Binary mask of the component to analyze.
+    :param hsv_image: HSV image from which color is to be extracted.
+    :return: A tuple containing the color and shape of the component.
+    """
+    color = get_component_color(hsv_image, component_mask)
+    shape = get_component_shape(component_mask)
+    return (color, shape)
