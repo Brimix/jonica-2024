@@ -13,26 +13,11 @@ import image_processing.debug_tools as im_dbg
 
 from actuators.units import train, trapdoor
 
-def trapdoor_open():
-    global trapdoor
-    print('Lets kick')
-    trapdoor.sweep(180, 130, 2)
-    time.sleep(1)
-    trapdoor.sweep(130, 180, 0.5)
-
-def train_open():
-    global train
-    print('Lets kick train')
-    train.sweep(180, 0, 1)
-    time.sleep(1)
-    train.sweep(0, 180, 1)
-
 def process_frame():
     [fp, fr] = imp.get_filtered_frame()
     analyze.execute(fp, fr)
 
 def main():
-    global trapdoor, train
     imp.init()
     keyboard.init()
     trapdoor.set_angle(10)
@@ -53,7 +38,7 @@ def main():
             if timespan >= param.frame_timespan:
                 process_frame()
                 if td:
-                    trapdoor_open()
+                    trapdoor.open()
                 else:
                     train_open()
                 

@@ -2,7 +2,7 @@ from enum import Enum
 from transitions import Machine
 import time
 import threading
-import keyboardWin as keyboard
+import keyboard
 
 from actuators.units import train, trapdoor, motor
 
@@ -43,7 +43,6 @@ transitions = [
 ### Model ###
 class Model(object):
     def start_timer_retrieving(self):
-        # Timer set for 5 seconds to transition to CHECK_OBJECT
         timer = threading.Timer(3.0, self.timeout_retrieve, args=[])
         timer.start()
     
@@ -52,8 +51,13 @@ class Model(object):
         timer.start()
 
     def start_timer_dispense(self):
-        timer = threading.Timer(4.0, self.timeout_dispense, args=[])
+        trapdoor.open()
+        timer = threading.Timer(1.0, self.timeout_dispense, args=[])
         timer.start()
+
+    def close_door_dispense(self):
+        trapdoor.close()
+        motor.start_motor()
 
 # Initialize the state machine
 model = Model()
@@ -64,6 +68,7 @@ machine.on_enter_SelectRedBall('start_timer_train')
 machine.on_enter_SelectGreenBall('start_timer_train')
 machine.on_enter_SelectCube('start_timer_train')
 machine.on_enter_Dispense('start_timer_dispense')
+machine.on_exit_Dispense('close_door_dispense')
 
 def main():
     global model
@@ -72,10 +77,10 @@ def main():
     last_state = None   # For debug
 
     # Mock values
-    should_start = False
+    should_start = True
     is_object = False
     object_color = 'Red'
-    object_shape = 'Square'
+    object_shape = 'Circle'
 
     try:
         while True:
@@ -108,22 +113,22 @@ def main():
                 motor.stop_motor()
 
                 if (should_start):
+                    motor.start_motor()
                     model.start()
                 
             elif model.state == States.RETRIEVING.value:
-                # - Start motor
                 pass
             elif model.state == States.CHECK_OBJECT.value:
                 # - Use camera to identify object existance
-                time.sleep(2)
+                time.sleep(0.5)
                 if (is_object):
                     model.object_detected()
                 else:
                     model.object_not_detected()
             elif model.state == States.ANALYZE_OBJECT.value:
-                # - Stop motor
+                motor.stop_motor()
                 # - Use camera to obtain object values
-                time.sleep(2)
+                time.sleep(1)
                 if (object_shape == 'Square'):
                     model.handle_cube()
                 else:
@@ -132,20 +137,13 @@ def main():
                     else:
                         model.handle_ball_green()
 
-                pass
             elif model.state == States.SELECT_RED_BALL.value:
                 train.set_position_zero()
-                pass
             elif model.state == States.SELECT_GREEN_BALL.value:
                 train.set_position_ninety()
-                pass
             elif model.state == States.SELECT_CUBE.value:
                 train.set_position_one_eighty()
-                pass
             elif model.state == States.DISPENSE.value:
-                trapdoor.open()
-                time.sleep(1)
-                trapdoor.close()
                 pass
     except KeyboardInterrupt:
         pass

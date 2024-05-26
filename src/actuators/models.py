@@ -14,18 +14,16 @@ class Trapdoor(AC.ServoController):
 class Train(AC.ServoController):
     def set_position_zero(self):
         """Sets the train's position to 0 degrees."""
-        print('Train to 0')
-        self.set_angle(0)
+        # print('Train to 0')
+        self.set_angle(1)
 
     def set_position_ninety(self):
         """Sets the train's position to 90 degrees."""
-        print('Train to 90')
         self.set_angle(90)
 
     def set_position_one_eighty(self):
         """Sets the train's position to 180 degrees."""
-        print('Train to 180')
-        self.set_angle(180)
+        self.set_angle(179)
 
 class Motor(AC.MotorController):
     pass
