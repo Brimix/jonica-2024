@@ -4,39 +4,39 @@ import time
 import keyboard
 import parameters as param
 import analyze
-import ServoController as SC
+
+import actuators.controllers as SC
 
 import image_processing.process as imp
 import image_processing.filter_parameters as im_param
 import image_processing.debug_tools as im_dbg
 
-trapdoor_servo = SC.ServoController(12)
-train_servo = SC.ServoController(13)
+from actuators.units import train, trapdoor
 
 def trapdoor_open():
-    global trapdoor_servo
+    global trapdoor
     print('Lets kick')
-    trapdoor_servo.sweep(180, 130, 2)
+    trapdoor.sweep(180, 130, 2)
     time.sleep(1)
-    trapdoor_servo.sweep(130, 180, 0.5)
+    trapdoor.sweep(130, 180, 0.5)
 
 def train_open():
-    global train_servo
+    global train
     print('Lets kick train')
-    train_servo.sweep(180, 0, 1)
+    train.sweep(180, 0, 1)
     time.sleep(1)
-    train_servo.sweep(0, 180, 1)
+    train.sweep(0, 180, 1)
 
 def process_frame():
     [fp, fr] = imp.get_filtered_frame()
     analyze.execute(fp, fr)
 
 def main():
-    global trapdoor_servo, train_servo
+    global trapdoor, train
     imp.init()
     keyboard.init()
-    trapdoor_servo.set_angle(10)
-    train_servo.set_angle(10)
+    trapdoor.set_angle(10)
+    train.set_angle(10)
 
     last_time = time.time()
     td = True
@@ -67,8 +67,8 @@ def main():
     finally:
         imp.stop()
         keyboard.stop()
-        trapdoor_servo.stop()
-        train_servo.stop()
+        trapdoor.stop()
+        train.stop()
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
