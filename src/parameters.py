@@ -5,7 +5,7 @@ frame_timespan              = 6     # Seconds between shots
 # Servo parameters
 angle_min                   = 0
 angle_max                   = 180
-angle                       = 0
+angle                       = 10
 angle_resolution            = 10
 
 def tweak_by_key(key):

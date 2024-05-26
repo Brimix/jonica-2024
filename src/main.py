@@ -15,15 +15,17 @@ train_servo = SC.ServoController(13)
 
 def trapdoor_open():
     global trapdoor_servo
-    trapdoor_servo.sweep(0, 180, 2)
+    print('Lets kick')
+    trapdoor_servo.sweep(180, 130, 2)
     time.sleep(1)
-    trapdoor_servo.sweep(180, 0, 0.5)
+    trapdoor_servo.sweep(130, 180, 0.5)
 
 def train_open():
     global train_servo
-    train_servo.sweep(0, 90, 2)
+    print('Lets kick train')
+    train_servo.sweep(180, 0, 1)
     time.sleep(1)
-    train_servo.sweep(90, 0, 0.5)
+    train_servo.sweep(0, 180, 1)
 
 def process_frame():
     [fp, fr] = imp.get_filtered_frame()
@@ -37,13 +39,14 @@ def main():
     train_servo.set_angle(10)
 
     last_time = time.time()
-    # td = True
+    td = True
     try:
         while True:
             key = keyboard.getKey()
             im_param.tweak_by_key(key)
             im_dbg.switch_step()
 
+            param.tweak_by_key(key)
             current_time = time.time()
             timespan = current_time - last_time
 

@@ -44,7 +44,7 @@ def tweak_by_key(key):
     if key == 'd' and canny_ths_L > canny_ths_L_resolution:
         canny_ths_L -= canny_ths_L_resolution
 
-    if key == 'r' and canny_ths_L + canny_ths_H_resolution < 255:
+    if key == 'r' and canny_ths_H + canny_ths_H_resolution < 255:
         canny_ths_H += canny_ths_H_resolution
     if key == 'f' and canny_ths_H > canny_ths_H_resolution:
         canny_ths_H -= canny_ths_H_resolution
