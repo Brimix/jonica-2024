@@ -4,10 +4,7 @@ import image_processing.process as img_process
 import computer_vision.tools as cv_tools;
 
 def identify_object():
-    return False
-    [frame_processed, frame_hsv] = img_process.get_filtered_frame()
-    object_mask = cv_tools.find_largest_component_under_threshold(frame_processed)
-    return (object_mask is not None)
+    return img_process.detect_movement()
 
 def get_object():
     [frame_processed, frame_hsv] = img_process.get_filtered_frame()

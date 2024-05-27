@@ -65,6 +65,10 @@ def close_shape(img):
     struct = cv2.getStructuringElement(cv2.MORPH_ELLIPSE ,(param.expansion_size, param.expansion_size))
     return cv2.morphologyEx(img, cv2.MORPH_CLOSE, struct)
 
+def open_shape(img):
+    struct = cv2.getStructuringElement(cv2.MORPH_ELLIPSE ,(param.expansion_size, param.expansion_size))
+    return cv2.morphologyEx(img, cv2.MORPH_OPEN, struct, iterations=2)
+
 def fill_holes(img):
     '''
     input gray binary image  get the filled image by floodfill method
