@@ -1,6 +1,6 @@
 # Execution parameters
 keep_running                = True
-frame_timespan              = 6     # Seconds between shots
+frame_timespan              = 1     # Seconds between shots
 
 # Servo parameters
 angle_min                   = 0

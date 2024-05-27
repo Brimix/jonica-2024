@@ -1,15 +1,17 @@
 import actuators.controllers as AC
 
 class Trapdoor(AC.ServoController):
+    CLOSED_ANGLE = 0
+    OPEN_ANGLE = 60
     def open(self):
         """Sweeps the servo from 0 to 90 degrees to open the trapdoor."""
         print('Trapdoor open')
-        self.sweep(0, 90, 2)
+        self.sweep(self.CLOSED_ANGLE, self.OPEN_ANGLE, 2)
 
     def close(self):
         """Sweeps the servo from 90 to 0 degrees to close the trapdoor."""
         print('Trapdoor closed')
-        self.sweep(90, 0, 0.5)
+        self.sweep(self.OPEN_ANGLE, self.CLOSED_ANGLE, 0.5)
 
 class Train(AC.ServoController):
     def set_position_zero(self):

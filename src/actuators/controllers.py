@@ -48,9 +48,9 @@ class MotorController:
         self.pi.set_PWM_frequency(self.gpio_pin, 50)
 
     def start_motor(self):
-        initial_duty_cycle = 100
-        final_duty_cycle = 60
-        duration = 2  # duration in seconds to reach final duty cycle
+        initial_duty_cycle = 80
+        final_duty_cycle = 35
+        duration = 0.5  # duration in seconds to reach final duty cycle
         steps = 10  # number of steps in transition
         step_time = duration / steps
         duty_step = (final_duty_cycle - initial_duty_cycle) / steps

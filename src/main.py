@@ -11,7 +11,7 @@ import image_processing.debug_tools as im_dbg
 import computer_vision.functions as cvf
 
 def process_frame():
-    obj = cvf.get_mode_object()
+    obj = cvf.get_object()
     if (obj is not None):
         color, shape = obj
         print('--- ', color, shape)
@@ -27,7 +27,7 @@ def main():
         while True:
             key = keyboard.getKey()
             im_param.tweak_by_key(key)
-            # im_dbg.switch_step()
+            im_dbg.switch_step()
 
             param.tweak_by_key(key)
             current_time = time.time()
