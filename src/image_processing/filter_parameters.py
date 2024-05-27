@@ -19,20 +19,13 @@ saturation_ths              = 55
 value_ths                   = 81
 sat_val_resolution          = 2
 
-
-
 def tweak_by_key(key):
-    global keep_running
     global blur_intensity, blur_intensity_resolution
     global canny_ths_L, canny_ths_L_resolution
     global canny_ths_H, canny_ths_H_resolution
-    global angle, angle_min, angle_max, angle_resolution
     global expansion_size, expansion_size_resolution, expansion_size_max
     global erosion_size, erosion_size_resolution, erosion_size_max
     global saturation_ths, value_ths, sat_val_resolution
-
-    if key == 'q':
-        keep_running = False
 
     if key == 'w':
         blur_intensity += blur_intensity_resolution

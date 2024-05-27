@@ -2,8 +2,6 @@ from enum import Enum
 from transitions import Machine
 import time
 import threading
-import keyboard
-import image_processing.process as imp
 import computer_vision.functions as cvf
 
 from actuators.units import train, trapdoor, motor
@@ -46,7 +44,7 @@ class Model(object):
         timer = threading.Timer(5.0, self.timeout_train, args=[])
         timer.start()
 
-    def start_timer_dispense(self):
+    def start_dispensing(self):
         trapdoor.open()
         timer = threading.Timer(0.1, self.timeout_dispense, args=[])
         timer.start()
@@ -70,77 +68,63 @@ machine = Machine(model=model, states=states, transitions=transitions, initial=S
 machine.on_enter_SelectRedBall('start_timer_train')
 machine.on_enter_SelectGreenBall('start_timer_train')
 machine.on_enter_SelectCube('start_timer_train')
-machine.on_enter_Dispense('start_timer_dispense')
+machine.on_enter_Dispense('start_dispensing')
 machine.on_exit_Dispense('close_door_dispense')
 machine.on_enter_AnalyzeObject('start_analysis')
 machine.on_exit_AnalyzeObject('finish_analysis')
 
-def main():
+# For debug
+last_state = None
+should_start = False
+
+def run(key):
+    global last_state, should_start
     global model
-    keyboard.init()
-    imp.init()
+    ### Debugging bullshit
+    if (key == 's'):
+        should_start = True
 
-    last_state = None   # For debug
-
-    # Mock values
-    should_start = False
-
-    try:
-        while True:
-            ### Debugging bullshit
-            key = keyboard.getKey()
-            if (key == 's'):
-                should_start = True
-
-            if (last_state != model.state):
-                print('Entered state ', model.state)
-                last_state = model.state
+    if (last_state != model.state):
+        print('Entered state ', model.state)
+        last_state = model.state
             
-            ### Actual code below this point
-            if model.state == States.INIT.value:
-                # Initialization code here
-                train.set_angle(0)
-                trapdoor.set_angle(0)
-                motor.stop_motor()
-
-                if (should_start):
-                    motor.start_motor()
-                    model.start()
-                
-            elif model.state == States.RETRIEVING.value:
-                is_object = cvf.identify_object()
-                if (is_object):
-                    model.object_detected()
-            elif model.state == States.ANALYZE_OBJECT.value:
-                motor.stop_motor()
-                
-                obj = cvf.get_mode_object()
-                if (obj is not None):
-                    color, shape = obj
-
-                    if (shape == 'square'):
-                        model.handle_cube()
-                    else:
-                        if (color == 'red'):
-                            model.handle_ball_red()
-                        else:
-                            model.handle_ball_green()
-                else:
-                    model.handle_none()
-
-            elif model.state == States.SELECT_RED_BALL.value:
-                train.set_position_zero()
-            elif model.state == States.SELECT_GREEN_BALL.value:
-                train.set_position_ninety()
-            elif model.state == States.SELECT_CUBE.value:
-                train.set_position_one_eighty()
-            elif model.state == States.DISPENSE.value:
-                pass
-    except KeyboardInterrupt:
-        pass
-    finally:
-        keyboard.stop()
+    ### Actual code below this point
+    if model.state == States.INIT.value:
+        train.set_angle(0)
+        trapdoor.set_angle(0)
         motor.stop_motor()
 
-if __name__ == "__main__":
-    main()
+        if (should_start):
+            motor.start_motor()
+            model.start()
+                
+    elif model.state == States.RETRIEVING.value:
+        is_object = cvf.identify_object()
+        if (is_object):
+            model.object_detected()
+
+    elif model.state == States.ANALYZE_OBJECT.value:
+        motor.stop_motor()
+        obj = cvf.get_mode_object()
+        if (obj is not None):
+            color, shape = obj
+
+            if (shape == 'square'):
+                model.handle_cube()
+            else:
+                if (color == 'red'):
+                    model.handle_ball_red()
+                else:
+                    model.handle_ball_green()
+        else:
+            model.handle_none()
+
+    elif model.state == States.SELECT_RED_BALL.value:
+        train.set_position_zero()
+    elif model.state == States.SELECT_GREEN_BALL.value:
+        train.set_position_ninety()
+    elif model.state == States.SELECT_CUBE.value:
+        train.set_position_one_eighty()
+    elif model.state == States.DISPENSE.value:
+        pass
+

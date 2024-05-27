@@ -16,7 +16,7 @@ def stop():
     global fd, old_settings
     termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
-def getKey():
+def get_stroke():
     global fd
     if select.select([sys.stdin], [], [], 0)[0]:  # Check if input is waiting
         return sys.stdin.read(1)
