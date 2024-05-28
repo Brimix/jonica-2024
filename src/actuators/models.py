@@ -1,4 +1,5 @@
 import actuators.controllers as AC
+import time
 
 class Trapdoor(AC.ServoController):
     def __init__(self, gpio_pin, closed_angle, open_angle):
@@ -35,5 +36,21 @@ class Train(AC.ServoController):
         """Sets the train's position to 180 degrees."""
         self.set_angle(self.position_one_eighty)
 
-class Motor(AC.MotorController):
-    pass
+class SlowMotor(AC.MotorController):
+    def __init__(self, gpio_pin, start_velocity, target_velocity, start_duration):
+        super().__init__(gpio_pin)
+        self.start_velocity = start_velocity
+        self.target_velocity = target_velocity
+        self.start_duration = start_duration
+
+    def start(self):
+        steps = 10
+        step_time = self.start_duration / steps
+        velocity_step = (self.target_velocity - self.start_velocity) / steps
+        
+        for i in range(steps):
+            velocity = self.start_velocity + i * velocity_step
+            self.set_velocity(velocity)
+            time.sleep(step_time)
+        
+        self.set_velocity(self.target_velocity)

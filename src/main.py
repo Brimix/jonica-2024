@@ -27,7 +27,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        motor.stop_motor()
+        motor.stop_movement()
         train.stop()
         trapdoor.stop()
         motor.stop()

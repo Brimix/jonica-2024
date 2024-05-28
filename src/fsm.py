@@ -93,12 +93,12 @@ def run(key):
     if model.state == States.INIT.value:
         trapdoor.set_angle(const.TRAPDOOR_CLOSED_ANGLE)
         train.set_angle(const.TRAIN_POSIION_B)
-        motor.stop_motor()
+        motor.stop_movement()
         
         is_object = cvf.identify_object()
 
         if (should_start and not is_object):
-            motor.start_motor()
+            motor.start()
             model.start()
                 
     elif model.state == States.RETRIEVING.value:
@@ -107,7 +107,7 @@ def run(key):
             model.object_detected()
 
     elif model.state == States.ANALYZE_OBJECT.value:
-        motor.stop_motor()
+        motor.stop_movement()
         obj = cvf.get_mode_object()
         if (obj is not None):
             color, shape = obj

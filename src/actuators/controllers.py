@@ -39,34 +39,21 @@ class MotorController:
     def __init__(self, gpio_pin):
         self.gpio_pin = gpio_pin
         self.pi = pigpio.pi()
-        self.current_duty_cycle = 0
-        
+
         if not self.pi.connected:
             raise Exception("Failed to connect to pigpio daemon")
-        
+
         self.pi.set_mode(self.gpio_pin, pigpio.OUTPUT)
         self.pi.set_PWM_frequency(self.gpio_pin, 50)
+        self.velocity = 0
 
-    def start_motor(self):
-        initial_duty_cycle = 80
-        final_duty_cycle = 35
-        duration = 0.5  # duration in seconds to reach final duty cycle
-        steps = 10  # number of steps in transition
-        step_time = duration / steps
-        duty_step = (final_duty_cycle - initial_duty_cycle) / steps
-        
-        for i in range(steps):
-            self.current_duty_cycle = initial_duty_cycle + i * duty_step
-            self.pi.set_PWM_dutycycle(self.gpio_pin, self.current_duty_cycle)
-            time.sleep(step_time)
-        
-        # Ensure final duty cycle is set
-        self.current_duty_cycle = final_duty_cycle
-        self.pi.set_PWM_dutycycle(self.gpio_pin, self.current_duty_cycle)
+    def set_velocity(self, velocity):
+        if self.velocity != velocity:
+            self.velocity = velocity
+            self.pi.set_PWM_dutycycle(self.gpio_pin, velocity)
 
-    def stop_motor(self):
-        self.pi.set_PWM_dutycycle(self.gpio_pin, 0)  # Stop the motor by setting duty cycle to 0
-        self.current_duty_cycle = 0
+    def stop_movement(self):
+        self.set_velocity(0)
 
     def stop(self):
-        self.pi.stop()  # Disconnect from pigpio daemon
+        self.pi.stop()
