@@ -37,7 +37,7 @@ pressed_key = None
 
 def display_steps():
     global current_step_id, steps, pressed_key
-    cv2.imshow('Image', steps[current_step_id])
+    cv2.imshow('Steps', steps[current_step_id])
     pressed_key = cv2.waitKey(1) & 0xFF
 
 def set_steps(new_steps):

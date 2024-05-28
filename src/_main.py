@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import time
-import keyboard
+import keystrokes
 import _parameters as param
 
 import image_processing.process as imp
@@ -20,12 +20,12 @@ def process_frame():
 
 def main():
     imp.init()
-    keyboard.init()
+    keystrokes.init()
 
     last_time = time.time()
     try:
         while True:
-            key = keyboard.getKey()
+            key = keystrokes.get_stroke()
             im_param.tweak_by_key(key)
             im_dbg.switch_step()
 
@@ -35,16 +35,14 @@ def main():
 
             if timespan >= param.frame_timespan:
                 process_frame()
+                # im_param.show()
                 
                 last_time = current_time
-
-            if not param.keep_running:
-                break
     except KeyboardInterrupt:
         pass
     finally:
         imp.stop()
-        keyboard.stop()
+        keystrokes.stop()
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":

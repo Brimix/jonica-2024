@@ -4,6 +4,7 @@ import image_processing.process as img_process
 import computer_vision.tools as cv_tools;
 
 def identify_object():
+    # return True
     return img_process.detect_movement()
 
 def get_object():
@@ -16,9 +17,9 @@ def get_object():
     return
 
 def get_mode_object():
-    color = 'red'
-    shape = 'square'
-    return (color, shape)
+    # color = 'red'
+    # shape = 'square'
+    # return (color, shape)
     color_results = []
     shape_results = []
 

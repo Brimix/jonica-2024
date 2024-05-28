@@ -53,14 +53,12 @@ def get_component_shape(component_mask):
     perimeter = cv2.arcLength(contours[0], True)
     area = cv2.contourArea(contours[0])
 
-    # Perimeter of a circle calculated from area
-    circle_perimeter = np.sqrt(4 * np.pi * area)
-
     # Ratio is around 4.pi for circles and 16 for squares (and other shapes)
-    ratio = perimeter / circle_perimeter
+    rho = (perimeter*perimeter) / area
+    ratio = rho / (4*np.pi)
     # print(f"  Ratio: ({ratio})")
 
-    if (ratio < 1.1):
+    if (ratio < 1.30):
         return 'circle'
     else:
         return 'square'

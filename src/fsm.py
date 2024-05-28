@@ -2,9 +2,10 @@ from enum import Enum
 from transitions import Machine
 import time
 import threading
-import computer_vision.functions as cvf
 
-from actuators.units import train, trapdoor, motor
+import constants as const
+from units import train, trapdoor, motor
+import computer_vision.functions as cvf
 
 ### States ###
 class States(Enum):
@@ -41,7 +42,7 @@ transitions = [
 ### Model ###
 class Model(object):
     def start_timer_train(self):
-        timer = threading.Timer(5.0, self.timeout_train, args=[])
+        timer = threading.Timer(3.0, self.timeout_train, args=[])
         timer.start()
 
     def start_dispensing(self):
@@ -90,11 +91,13 @@ def run(key):
             
     ### Actual code below this point
     if model.state == States.INIT.value:
-        train.set_angle(0)
-        trapdoor.set_angle(0)
+        trapdoor.set_angle(const.TRAPDOOR_CLOSED_ANGLE)
+        train.set_angle(const.TRAIN_POSIION_B)
         motor.stop_motor()
+        
+        is_object = cvf.identify_object()
 
-        if (should_start):
+        if (should_start and not is_object):
             motor.start_motor()
             model.start()
                 

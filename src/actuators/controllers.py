@@ -12,7 +12,7 @@ class ServoController:
         
         self.pi.set_mode(self.gpio_pin, pigpio.OUTPUT)
         self.pi.set_PWM_frequency(self.gpio_pin, 50)  # 50 Hz for servo control
-        self.pi.set_PWM_dutycycle(self.gpio_pin, 100)
+        self.pi.set_PWM_dutycycle(self.gpio_pin, 0)
 
     def set_angle(self, angle):
         if self.current_angle != angle:

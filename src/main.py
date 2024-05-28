@@ -1,9 +1,11 @@
 import cv2
 import keystrokes
 
+# import image_processing.debug_tools as im_dbg
+# import image_processing.filter_parameters as im_param
 import image_processing.process as imp
-import actuators.units as act
 import fsm
+from units import train, trapdoor, motor
 
 def main():
     keystrokes.init()
@@ -11,6 +13,7 @@ def main():
     try:
         while True:
             key = keystrokes.get_stroke()
+            # key = '0'
 
             # Turn on to debug
             # im_dbg.switch_step()
@@ -24,7 +27,10 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        act.motor.stop_motor()
+        motor.stop_motor()
+        train.stop()
+        trapdoor.stop()
+        motor.stop()
         imp.stop()
         keystrokes.stop()
         cv2.destroyAllWindows()

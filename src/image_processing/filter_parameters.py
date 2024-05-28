@@ -15,8 +15,8 @@ erosion_size                = 19
 erosion_size_resolution     = 2
 erosion_size_max            = 100
 
-saturation_ths              = 55
-value_ths                   = 81
+saturation_ths              = 85
+value_ths                   = 63
 sat_val_resolution          = 2
 
 def tweak_by_key(key):
@@ -64,11 +64,11 @@ def tweak_by_key(key):
 
 def show():
     print('---FILTER---')
-    print('Saturation threshold:    ', saturation_ths)
-    print('Value threshold:         ', value_ths)
-    print('Blur intensity:          ', blur_intensity)
-    print('Canny threshold - Low:   ', canny_ths_L)
-    print('Canny threshold - High:  ', canny_ths_H)
-    print('Expansion size:          ', expansion_size)
-    print('Erosion size:            ', erosion_size)
+    print('[h-y] Saturation threshold:    ', saturation_ths)
+    print('[j-u] Value threshold:         ', value_ths)
+    print('[s-w] Blur intensity:          ', blur_intensity)
+    print('[d-e] Canny threshold - Low:   ', canny_ths_L)
+    print('[f-r] Canny threshold - High:  ', canny_ths_H)
+    print('[g-t] Expansion size:          ', expansion_size)
+    print('[k-i] Erosion size:            ', erosion_size)
     print('___FILTER___')
