@@ -33,9 +33,9 @@ def get_filtered_frame():
 
 
     # For debugging only
-    # dbg.split_hsv(f)
-    # f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
-    # dbg.set_steps([f_color, f_adjust, f_blur, f_can, f_exp, f_closed, f_full, f_eros])
+    # dbg.split_hsv(f_adjust)
+    f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
+    dbg.set_steps([f_color, f_adjust, f_blur, f_can, f_exp, f_closed, f_full, f_eros])
 
     return [f_eros, f]
 
@@ -56,7 +56,7 @@ def detect_movement():
 
     # Display the resulting frame and foreground mask
     # cv2.imshow('Frame', frame)
-    cv2.imshow('Foreground Mask', fg_close)
+    # cv2.imshow('Foreground Mask', fg_close)
     cv2.waitKey(1)
     
     return movement_ratio > THRESHOLD_PERCENT
