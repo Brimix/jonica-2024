@@ -4,7 +4,7 @@ import image_processing.process as img_process
 import computer_vision.tools as cv_tools;
 
 def identify_object():
-    # return True
+    return True
     return img_process.detect_movement()
 
 def get_object():

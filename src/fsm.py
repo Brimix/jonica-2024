@@ -76,7 +76,7 @@ machine.on_exit_AnalyzeObject('finish_analysis')
 
 # For debug
 last_state = None
-should_start = False
+should_start = True
 
 def run(key):
     global last_state, should_start
@@ -95,9 +95,9 @@ def run(key):
         train.set_angle(const.TRAIN_POSIION_B)
         motor.stop_movement()
         
-        is_object = cvf.identify_object()
+        # is_object = cvf.identify_object()
 
-        if (should_start and not is_object):
+        if (should_start):
             motor.start()
             model.start()
                 
