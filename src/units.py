@@ -4,7 +4,7 @@ import constants as const
 trapdoor = models.Trapdoor(
     gpio_pin = const.TRAPDOOR_GPIO_PIN,
     closed_angle = const.TRAPDOOR_CLOSED_ANGLE,
-    open_angle = const.TRAPDOOR_CLOSED_ANGLE
+    open_angle = const.TRAPDOOR_OPEN_ANGLE
 )
 
 train = models.Train(

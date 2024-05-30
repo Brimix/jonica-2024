@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+from cnn.predictor import predict_from_image
+
 def mean_hue_value(hues):
     """
     Calculate the mean hue value from a list of hue by converting each hue to an angle in the
@@ -72,31 +74,85 @@ def find_largest_component_under_threshold(binary_image):
     :return: Mask of the largest object under the threshold or None if no such object exists.
     """
 
-    MIN_AREA_THRESHOLD = 5000
-    MAX_AREA_THRESHOLD = 40000
+    MIN_AREA_THRESHOLD = .01
+    MAX_AREA_THRESHOLD = .5
 
     # Step 1: Find connected components with statistics in the binary image
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(binary_image, connectivity=8, ltype=cv2.CV_32S)
-    
-    # Step 2: Initialize variables to find the largest component under the threshold
-    max_area = MIN_AREA_THRESHOLD
+
+    # Step 2: Calculate total area
+    height, width = binary_image.shape[:2]
+    total_area = height * width
+
+    # Step 3: Initialize variables to find the largest component under the threshold
+    max_relative_area = MIN_AREA_THRESHOLD
     largest_component_mask = None
 
-    # Step 3: Iterate through the components to find the largest under threshold
+    # Step 4: Iterate through the components to find the largest under threshold
     for label in range(1, num_labels):  # Skip label 0 as it's the background
         area = stats[label, cv2.CC_STAT_AREA]
+        relative_area = area / total_area
 
-        if (area > MAX_AREA_THRESHOLD):
+        if (relative_area > MAX_AREA_THRESHOLD):
             return None
         
-        if area > max_area:
-            max_area = area
+        if relative_area > max_relative_area:
+            max_relative_area = relative_area
             # Create a mask for the current largest component
             largest_component_mask = (labels == label).astype(np.uint8) * 255
 
     # Return the mask of the largest component if found
-    # print('Area', max_area)
+    # print('Area', max_relative_area)
     return largest_component_mask
+    
+def create_scaled_image(bitmask):
+    if bitmask is None:
+        print("No valid component found to process.")
+        return None
+
+    # Find contours of the object from the already prepared bitmask
+    contours, hierarchy = cv2.findContours(bitmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    if not contours:
+        print("No contours found in the mask.")
+        return None  # No contours found
+
+    # Create a new white image
+    new_image = np.ones((200, 200), dtype=np.uint8) * 255
+
+    # Find the bounding rectangle of the largest contour (assuming largest by area)
+    contour = max(contours, key=cv2.contourArea)
+    x, y, w, h = cv2.boundingRect(contour)
+
+    # Calculate scale to fit the object into 100x100 area (200 - 2*50)
+    scale_factor = min(150.0 / w, 150.0 / h)
+
+    # Calculate the new dimensions
+    new_w = int(w * scale_factor)
+    new_h = int(h * scale_factor)
+
+    # Calculate offset to center the object
+    x_offset = (200 - new_w) // 2
+    y_offset = (200 - new_h) // 2
+
+    # Resize the contour
+    resized_contour = []
+    for point in contour:
+        new_point = [[
+            int((point[0][0] - x) * scale_factor + x_offset),
+            int((point[0][1] - y) * scale_factor + y_offset)
+        ]]
+        resized_contour.append(new_point)
+    resized_contour = np.array(resized_contour, dtype=np.int32)
+
+    # Draw the contour on the new image
+    cv2.drawContours(new_image, [resized_contour], -1, (0,), thickness=cv2.FILLED)
+
+    return new_image
+
+def get_component_shape_using_cnn(component_mask):
+    scaled = create_scaled_image(component_mask)
+    return predict_from_image(scaled)
 
 def get_component_color_and_shape(component_mask, hsv_image):
     """
@@ -107,5 +163,5 @@ def get_component_color_and_shape(component_mask, hsv_image):
     :return: A tuple containing the color and shape of the component.
     """
     color = get_component_color(hsv_image, component_mask)
-    shape = get_component_shape(component_mask)
+    shape = get_component_shape_using_cnn(component_mask)
     return (color, shape)

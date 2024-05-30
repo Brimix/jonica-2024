@@ -4,7 +4,6 @@ import image_processing.process as img_process
 import computer_vision.tools as cv_tools;
 
 def identify_object():
-    return True
     return img_process.detect_movement()
 
 def get_object():
@@ -14,7 +13,7 @@ def get_object():
     if (object_mask is not None):
         return cv_tools.get_component_color_and_shape(object_mask, frame_hsv)
 
-    return
+    return None
 
 def get_mode_object():
     # color = 'red'
@@ -43,3 +42,10 @@ def get_mode_object():
     if color_count >= 5 and shape_count >= 5:
         return color, shape
     return None
+
+def create_image():
+    [frame_processed] = img_process.get_filtered_frame()
+    object_mask = cv_tools.find_largest_component_under_threshold(frame_processed)
+    if (object_mask is None):
+        return None
+    return cv_tools.create_scaled_image(object_mask)

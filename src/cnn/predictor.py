@@ -1,3 +1,4 @@
+import cv2
 import torch
 import torch.nn as nn
 from torchvision import transforms
@@ -26,29 +27,33 @@ class ConvolutionalNeuronalNetwork(nn.Module):
         x = self.fc_layers(x)
         return x
 
-def loadandevaluate(device,img_height,img_width,image_path=None,network_path=None): 
+def load_and_evaluate(device,img_height,img_width,cv_image=None,network_path=None): 
     model = ConvolutionalNeuronalNetwork(img_height, img_width).to(device)
     load_model(model,network_path, device)
 
-    if image_path:
-        model.eval()
-        image = preprocess_image(image_path, img_height, img_width).to(device)
-        with torch.no_grad():
-            output = model(image)
-            _, predicted = torch.max(output.data, 1)
-            if predicted.item() == 1:
-                print(f'Predicted class for the image {image_path}: SQUARE')
-            elif predicted.item() == 0:
-                print(f'Predicted class for the image {image_path}: CIRCLE')
+    # if cv_image[0]:
+    model.eval()
+    image = preprocess_image(cv_image, img_height, img_width).to(device)
+    with torch.no_grad():
+        output = model(image)
+        _, predicted = torch.max(output.data, 1)
+        if predicted.item() == 1:
+            return 'square'
+        elif predicted.item() == 0:
+            return 'circle'
 
-def preprocess_image(image_path, img_height, img_width):
+def preprocess_image(cv_image, img_height, img_width):
+    image_rgb = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+
+    # Convert the NumPy image array to a PIL Image
+    pil_image = Image.fromarray(image_rgb)
+
     transform = transforms.Compose([
         transforms.Resize((img_height, img_width)),
         transforms.ToTensor(),
         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
     ])
-    image = Image.open(image_path).convert('RGB')
-    image = transform(image).unsqueeze(0)
+    image = transform(pil_image).unsqueeze(0)
     return image
 
 
@@ -57,12 +62,12 @@ def load_model(model, path, device):
     model.to(device)
     return model
 
-def main():
+def predict_from_image(cv_image):
+    # Ajustar el img height y el width en funcion de la red neuronal utilizada (200x200 o 28x28)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     img_height, img_width = 28, 28
-    loadandevaluate(device,img_height,img_width,r'C:\Users\tomas\OneDrive\Escritorio\Test-RNN\code\test_image\output_camara.png', r'C:\Users\tomas\OneDrive\Escritorio\Test-RNN\code\networks\cnn-30epochs-28x28-high-reshape.pth')
-    #Ajustar el img height y el width en funcion de la red neuronal utilizada (200x200 o 28x28)
-    #Probe con 2 im
-if __name__ == '__main__':
-    main()
+
+    # img_path = r'/home/cafe/jonica-2024/src/cnn/test_image/output_camara.png'
+    nn_path = r'/home/cafe/jonica-2024/src/cnn/networks/cnn-30epochs-28x28-high-reshape.pth'
     
+    return load_and_evaluate(device,img_height,img_width, cv_image, nn_path)
