@@ -3,6 +3,7 @@ import numpy as np
 import image_processing.camera as cam
 import image_processing.filter as filter
 import image_processing.debug_tools as dbg
+import view
 
 bg_subtractor = None
 
@@ -31,7 +32,7 @@ def get_quick_filtered_frame():
     # For debugging only
     # dbg.split_hsv(f_adjust)
     f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
-    dbg.set_steps([f_color, f_can, f_exp, f_full])
+    view.set_steps([f_color, f_can, f_exp, f_full])
 
     return [f_full, f]
 
@@ -51,9 +52,9 @@ def get_filtered_frame():
 
 
     # For debugging only
-    # dbg.split_hsv(f_adjust)
-    # f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
-    # dbg.set_steps([f_color, f_adjust, f_blur, f_can, f_exp, f_closed, f_full, f_eros])
+    # dbg.split_hsv(f)
+    f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
+    view.set_steps([f_color, f, f_adjust, f_blur, f_can, f_exp, f_closed, f_full, f_eros])
 
     return [f_eros, f]
 

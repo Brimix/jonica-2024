@@ -36,21 +36,30 @@ class Train(AC.ServoController):
         """Sets the train's position to 180 degrees."""
         self.set_angle(self.position_one_eighty)
 
-class SlowMotor(AC.MotorController):
-    def __init__(self, gpio_pin, start_velocity, target_velocity, start_duration):
+class Carrier(AC.ServoController):
+    def __init__(self, gpio_pin, center_angle, extent, sweep_duration, wait_time):
         super().__init__(gpio_pin)
-        self.start_velocity = start_velocity
-        self.target_velocity = target_velocity
-        self.start_duration = start_duration
+        self.center_angle = center_angle
+        self.extent = extent
+        self.sweep_duration = sweep_duration
+        self.wait_time = wait_time
 
-    def start(self):
-        steps = 10
-        step_time = self.start_duration / steps
-        velocity_step = (self.target_velocity - self.start_velocity) / steps
-        
-        for i in range(steps):
-            velocity = self.start_velocity + i * velocity_step
-            self.set_velocity(velocity)
-            time.sleep(step_time)
-        
-        self.set_velocity(self.target_velocity)
+    def operate(self):
+        """
+        Operates the carrier by sweeping from the center to half the extent in one direction,
+        waits, then sweeps to the full extent in the opposite direction, waits, and returns to center.
+        """
+        # Calculate the target positions based on the center and extent
+        left_target = self.center_angle - self.extent / 2
+        right_target = self.center_angle + self.extent / 2
+
+        # Sweep to the left target
+        self.sweep(self.center_angle, left_target, self.sweep_duration)
+        time.sleep(self.wait_time)
+
+        # Sweep to the right target
+        self.sweep(left_target, right_target, self.sweep_duration * 2)
+        time.sleep(self.wait_time)
+
+        # Return to the center
+        self.sweep(right_target, self.center_angle, self.sweep_duration)

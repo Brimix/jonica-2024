@@ -43,13 +43,12 @@ def hsv_adjust(img, sat_thresh=30, val_thresh=30):
 
     # Create a mask where saturation and value are below the respective thresholds
     mask = (S < param.saturation_ths) | (V < param.value_ths)
-    # mask2 = (S < param.saturation_ths) & (S >= param.saturation_ths)
 
-    # Apply the mask to the HSV image
-    img[mask] = 0  # Setting all channels to 0 turns the pixel black
-    # img[:, :, 1][mask2] = param.saturation_ths2
+    # Apply the mask to a copy of the HSV image
+    img_copy = img.copy()
+    img_copy[mask] = 0  # Setting all channels to 0 turns the pixel black
 
-    return img
+    return img_copy
 
 def blur(img):
     return cv2.GaussianBlur(img,(5,5), param.blur_intensity)
@@ -85,42 +84,3 @@ def fill_holes(img):
 def erode(img):
     struct = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (param.erosion_size, param.erosion_size))
     return cv2.erode(img, struct, iterations = 1)
-
-
-# WARNING!
-# This function is not working properly
-# Will need to debug further or remove
-def discriminate_hue(img):
-    """
-    Adjust the hue of each pixel to the center of its segment in the hue circle divided into 6 segments,
-    with segments centered at [0, 30, 60, 90, 120, 150].
-
-    :param img: Input HSV image (H, S, V channels).
-    :return: Modified image with adjusted hues.
-    """
-    # New centers of each segment (approximate)
-    # [rojo, amarillo, verde, cian, azul, magenta]
-    centers = [0, 30, 60, 90, 120, 150]  # These are the new midpoints of each segment
-
-    # Clone the image to avoid modifying the original image
-    output_image = img.copy()
-    hue_channel = output_image[:, :, 0]
-
-    # Adjust hue values to the nearest segment center
-    for i in range(len(centers)):
-        if i == 0:
-            lower_bound = 0  # Special case for the first segment
-        else:
-            lower_bound = centers[i] - 15
-
-        if i == len(centers) - 1:
-            upper_bound = 180  # Special case for the last segment
-        else:
-            upper_bound = centers[i] + 15
-
-        # Create a mask for the current segment
-        mask = ((hue_channel >= lower_bound) & (hue_channel < upper_bound)) | ((hue_channel + 180) % 180 >= lower_bound) & ((hue_channel + 180) % 180 < upper_bound)
-        # Set the hue values in this segment to the segment's center
-        output_image[:, :, 0][mask] = centers[i]
-
-    return output_image

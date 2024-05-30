@@ -1,38 +1,25 @@
 import cv2
-import keystrokes
 
-# import image_processing.debug_tools as im_dbg
-# import image_processing.filter_parameters as im_param
 import image_processing.process as imp
 import fsm
-from units import train, trapdoor, motor
+import view
+
+from units import train, trapdoor, carrier
 
 def main():
-    keystrokes.init()
     imp.init()
+    view.create_window()
     try:
-        while True:
-            key = keystrokes.get_stroke()
-            # key = '0'
-
-            # Turn on to debug
-            # im_dbg.switch_step()
-            # im_param.tweak_by_key(key)
-            
-            fsm.run(key)
-
-            if key == 'q':
-                break
+        while True:    
+            fsm.run()
             
     except KeyboardInterrupt:
         pass
     finally:
-        motor.stop_movement()
         train.stop()
         trapdoor.stop()
-        motor.stop()
+        carrier.stop()
         imp.stop()
-        keystrokes.stop()
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":

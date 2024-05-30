@@ -4,8 +4,8 @@ import time
 import threading
 
 import constants as const
-from units import train, trapdoor, motor
 import computer_vision.functions as cvf
+from units import train, trapdoor, carrier
 
 ### States ###
 class States(Enum):
@@ -22,7 +22,7 @@ states = [state.value for state in States]
 ### Transitions ###
 transitions = [
     {'trigger': 'start', 'source': States.INIT.value, 'dest': States.RETRIEVING.value},
-    {'trigger': 'object_detected', 'source': States.RETRIEVING.value, 'dest': States.ANALYZE_OBJECT.value},
+    {'trigger': 'timeout_retrieve', 'source': States.RETRIEVING.value, 'dest': States.ANALYZE_OBJECT.value},
 
     # Transitions for the different outcomes from the analysis
     {'trigger': 'handle_ball_red', 'source': States.ANALYZE_OBJECT.value, 'dest': States.SELECT_RED_BALL.value},
@@ -41,14 +41,9 @@ transitions = [
 
 ### Model ###
 class Model(object):
-    def kick_motor(self):
-        motor.start()
-        timer = threading.Timer(2, self.kick_motor, args=[])
-        timer.start()
-
-    def start_motor(self):
-        motor.start()
-        timer = threading.Timer(2, self.kick_motor, args=[])
+    def carry(self):
+        carrier.operate()
+        timer = threading.Timer(6.0, self.timeout_retrieve, args=[])
         timer.start()
 
     def start_timer_train(self):
@@ -62,7 +57,6 @@ class Model(object):
 
     def close_door_dispense(self):
         trapdoor.close()
-        motor.start()
 
     def start_analysis(self):
         self.st = time.time()
@@ -81,7 +75,7 @@ machine.on_enter_SelectGreenBall('start_timer_train')
 machine.on_enter_SelectCube('start_timer_train')
 machine.on_enter_Dispense('start_dispensing')
 machine.on_exit_Dispense('close_door_dispense')
-machine.on_enter_Retrieving('start_motor')
+machine.on_enter_Retrieving('carry')
 machine.on_enter_AnalyzeObject('start_analysis')
 machine.on_exit_AnalyzeObject('finish_analysis')
 
@@ -89,13 +83,10 @@ machine.on_exit_AnalyzeObject('finish_analysis')
 last_state = None
 should_start = True
 
-def run(key):
+def run():
     global last_state, should_start
     global model
     ### Debugging bullshit
-    if (key == 's'):
-        should_start = True
-
     if (last_state != model.state):
         print('Entered state ', model.state)
         last_state = model.state
@@ -104,21 +95,15 @@ def run(key):
     if model.state == States.INIT.value:
         trapdoor.set_angle(const.TRAPDOOR_CLOSED_ANGLE)
         train.set_angle(const.TRAIN_POSIION_B)
-        motor.stop_movement()
-        
-        # is_object = cvf.identify_object()
+        carrier.set_angle(const.CARRIER_CENTER_ANGLE)
 
         if (should_start):
-            # motor.start()
             model.start()
                 
     elif model.state == States.RETRIEVING.value:
-        is_object = cvf.identify_object()
-        if (is_object):
-            model.object_detected()
+        pass
 
     elif model.state == States.ANALYZE_OBJECT.value:
-        motor.stop_movement()
         obj = cvf.get_mode_object()
         if (obj is not None):
             color, shape = obj

@@ -14,9 +14,10 @@ train = models.Train(
     position_C = const.TRAIN_POSIION_C
 )
 
-motor = models.SlowMotor(
-    gpio_pin = const.MOTOR_GPIO_PIN,
-    start_velocity = const.MOTOR_HIGH_PWM,
-    target_velocity = const.MOTOR_SLOW_PWM,
-    start_duration = const.MOTOR_START_DURATION
+carrier = models.Carrier(
+    gpio_pin = const.CARRIER_GPIO_PIN,
+    center_angle = const.CARRIER_CENTER_ANGLE,
+    extent = const.CARRIER_EXTENT,
+    sweep_duration = const.CARRIER_SWEEP_DURATION,
+    wait_time = const.CARRIER_WAIT_TIME
 )

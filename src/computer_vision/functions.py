@@ -16,9 +16,6 @@ def get_object():
     return None
 
 def get_mode_object():
-    # color = 'red'
-    # shape = 'square'
-    # return (color, shape)
     color_results = []
     shape_results = []
 
