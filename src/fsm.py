@@ -41,6 +41,16 @@ transitions = [
 
 ### Model ###
 class Model(object):
+    def kick_motor(self):
+        motor.start()
+        timer = threading.Timer(2, self.kick_motor, args=[])
+        timer.start()
+
+    def start_motor(self):
+        motor.start()
+        timer = threading.Timer(2, self.kick_motor, args=[])
+        timer.start()
+
     def start_timer_train(self):
         timer = threading.Timer(3.0, self.timeout_train, args=[])
         timer.start()
@@ -52,7 +62,7 @@ class Model(object):
 
     def close_door_dispense(self):
         trapdoor.close()
-        motor.start_motor()
+        motor.start()
 
     def start_analysis(self):
         self.st = time.time()
@@ -71,12 +81,13 @@ machine.on_enter_SelectGreenBall('start_timer_train')
 machine.on_enter_SelectCube('start_timer_train')
 machine.on_enter_Dispense('start_dispensing')
 machine.on_exit_Dispense('close_door_dispense')
+machine.on_enter_Retrieving('start_motor')
 machine.on_enter_AnalyzeObject('start_analysis')
 machine.on_exit_AnalyzeObject('finish_analysis')
 
 # For debug
 last_state = None
-should_start = False
+should_start = True
 
 def run(key):
     global last_state, should_start
@@ -95,10 +106,10 @@ def run(key):
         train.set_angle(const.TRAIN_POSIION_B)
         motor.stop_movement()
         
-        is_object = cvf.identify_object()
+        # is_object = cvf.identify_object()
 
-        if (should_start and not is_object):
-            motor.start()
+        if (should_start):
+            # motor.start()
             model.start()
                 
     elif model.state == States.RETRIEVING.value:

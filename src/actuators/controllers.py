@@ -45,6 +45,7 @@ class MotorController:
 
         self.pi.set_mode(self.gpio_pin, pigpio.OUTPUT)
         self.pi.set_PWM_frequency(self.gpio_pin, 50)
+        self.pi.set_PWM_dutycycle(self.gpio_pin, 0)
         self.velocity = 0
 
     def set_velocity(self, velocity):

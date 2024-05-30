@@ -52,7 +52,7 @@ def hsv_adjust(img, sat_thresh=30, val_thresh=30):
     return img
 
 def blur(img):
-    return cv2.GaussianBlur(img,(11,11), param.blur_intensity)
+    return cv2.GaussianBlur(img,(5,5), param.blur_intensity)
 
 def segment(img):
     return cv2.Canny(img, param.canny_ths_L, param.canny_ths_H)
@@ -124,4 +124,3 @@ def discriminate_hue(img):
         output_image[:, :, 0][mask] = centers[i]
 
     return output_image
-

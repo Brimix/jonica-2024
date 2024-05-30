@@ -17,6 +17,24 @@ def init():
 def get_frame():
     return cam.capture()
 
+def get_quick_filtered_frame():
+    frame = cam.capture()
+
+    f = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2HSV)
+
+    f_adjust = filter.hsv_adjust(f)
+    f_blur = filter.blur(f_adjust)
+    f_can = filter.segment(f_blur)
+    f_exp = filter.expand(f_can)
+    f_full = filter.fill_holes(f_exp)
+
+    # For debugging only
+    # dbg.split_hsv(f_adjust)
+    f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
+    dbg.set_steps([f_color, f_can, f_exp, f_full])
+
+    return [f_full, f]
+
 def get_filtered_frame():
     frame = cam.capture()
 
@@ -33,7 +51,7 @@ def get_filtered_frame():
 
 
     # For debugging only
-    # dbg.split_hsv(f)
+    # dbg.split_hsv(f_adjust)
     # f_color = cv2.cvtColor(np.asarray(frame), cv2.COLOR_BGR2RGB)
     # dbg.set_steps([f_color, f_adjust, f_blur, f_can, f_exp, f_closed, f_full, f_eros])
 
@@ -56,7 +74,7 @@ def detect_movement():
 
     # Display the resulting frame and foreground mask
     # cv2.imshow('Frame', frame)
-    cv2.imshow('Foreground Mask', fg_close)
+    # cv2.imshow('Foreground Mask', fg_close)
     cv2.waitKey(1)
     
     return movement_ratio > THRESHOLD_PERCENT
