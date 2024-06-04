@@ -26,6 +26,7 @@ To set up this project locally, follow these steps:
    sudo apt install python3-RPi.GPIO
    sudo apt install python3-pigpio
    sudo apt install python3-transitions
+   sudo apt install python3-torch
    ```
 
 ### Usage
