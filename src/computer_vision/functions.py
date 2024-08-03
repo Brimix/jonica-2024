@@ -15,12 +15,12 @@ def get_object():
 
     return None
 
-def get_mode_object():
+def get_mode_object(tries = 10):
     color_results = []
     shape_results = []
 
-    # Call get_object 10 times
-    for _ in range(10):
+    # Call get_object many times
+    for _ in range(tries):
         result = get_object()
         if result is not None:
             color, shape = result
@@ -35,8 +35,8 @@ def get_mode_object():
     color, color_count = color_counter.most_common(1)[0] if color_counter else (None, 0)
     shape, shape_count = shape_counter.most_common(1)[0] if shape_counter else (None, 0)
 
-    # Check if the mode count meets the minimum requirement of 5
-    if color_count >= 5 and shape_count >= 5:
+    # Check if the mode count meets the minimum requirement of 50%
+    if color_count >= tries/2 and shape_count >= tries/2 :
         return color, shape
     return None
 

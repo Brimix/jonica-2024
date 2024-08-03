@@ -1,4 +1,5 @@
 import cv2
+import threading
 
 import image_processing.process as imp
 import fsm
@@ -6,12 +7,22 @@ import view
 
 from units import train, trapdoor, carrier
 
+def run_fsm():
+    while True:    
+        fsm.run()
+
 def main():
     imp.init()
-    view.create_window()
+
+    thread1 = threading.Thread(target=run_fsm)
+    thread2 = threading.Thread(target=view.create_window)
+
     try:
-        while True:    
-            fsm.run()
+        thread1.start()
+        thread2.start()
+
+        thread1.join()
+        thread2.join()
             
     except KeyboardInterrupt:
         pass

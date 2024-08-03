@@ -104,7 +104,7 @@ def run():
         pass
 
     elif model.state == States.ANALYZE_OBJECT.value:
-        obj = cvf.get_mode_object()
+        obj = cvf.get_object()
         if (obj is not None):
             color, shape = obj
 
